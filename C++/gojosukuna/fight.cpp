@@ -7,7 +7,6 @@
 #include <cstdint>
 #include <algorithm>
 
-// --- KONFIGURACJA ---
 const int WINDOW_WIDTH = 1000;
 const int WINDOW_HEIGHT = 700;
 const float GROUND_HEIGHT = 600.0f;
@@ -18,7 +17,6 @@ const float MAX_SPEED = 9.0f;
 const float FRICTION = 0.85f;
 const float DASH_FORCE = 25.0f;
 
-// Koszty Energii
 const float MAX_ENERGY = 100.0f;
 const float ENERGY_REGEN = 0.3f;
 const float COST_BASIC = 15.0f;
@@ -30,7 +28,6 @@ enum AttackType
     SPECIAL
 };
 
-// --- EFEKTY ---
 class Particle
 {
 public:
@@ -61,7 +58,6 @@ public:
     }
 };
 
-// --- KLASA POCISKU ---
 class Projectile
 {
 public:
@@ -83,7 +79,6 @@ public:
         {
             if (type == BASIC)
             {
-                // BLUE
                 shapeOrb.setRadius(15.0f);
                 shapeOrb.setOrigin({15.0f, 15.0f});
                 shapeOrb.setFillColor(sf::Color::Cyan);
@@ -92,7 +87,6 @@ public:
             }
             else
             {
-                // RED
                 shapeOrb.setRadius(30.0f);
                 shapeOrb.setOrigin({30.0f, 30.0f});
                 shapeOrb.setFillColor(sf::Color::Red);
@@ -103,24 +97,20 @@ public:
             shapeRect.setSize({0, 0});
         }
         else
-        { // SUKUNA
+        {
             if (type == BASIC)
             {
-                // DISMANTLE (Cięcie) - ZWOLNIONE!
                 shapeRect.setSize({10.0f, 60.0f});
                 shapeRect.setOrigin({5.0f, 30.0f});
                 shapeRect.setFillColor(sf::Color::Red);
-                // Było 22.0f, zmieniamy na 11.0f (dużo wolniej)
                 velocity = {dir * 11.0f, 0};
                 damage = 10;
             }
             else
             {
-                // FUGA (Ognista Strzała)
                 shapeRect.setSize({60.0f, 20.0f});
                 shapeRect.setOrigin({30.0f, 10.0f});
                 shapeRect.setFillColor(sf::Color(255, 69, 0));
-                // Było 25.0f, zmieniamy na 16.0f
                 velocity = {dir * 16.0f, 0};
                 damage = 30;
             }
@@ -141,7 +131,7 @@ public:
         {
             shapeRect.move(velocity);
             if (type == BASIC)
-                shapeRect.rotate(sf::degrees(10.0f)); // Wolniejsze wirowanie
+                shapeRect.rotate(sf::degrees(10.0f));
             if (shapeRect.getPosition().x < -100 || shapeRect.getPosition().x > WINDOW_WIDTH + 100)
                 active = false;
         }
@@ -155,7 +145,6 @@ public:
     }
 };
 
-// --- KLASA GRACZA ---
 class Player
 {
 public:
@@ -182,14 +171,12 @@ public:
     {
         if (!texture.loadFromFile(imgPath))
         {
-            std::cout << "BLAD: " << imgPath << std::endl;
             hitbox.setFillColor(sf::Color::Magenta);
         }
         else
         {
             sprite.setTexture(texture, true);
             hitbox.setFillColor(sf::Color::Transparent);
-            std::cout << "OK: " << n << std::endl;
         }
 
         name = n;
@@ -302,7 +289,6 @@ int main()
 
     sf::Texture bgTexture;
     sf::RectangleShape background(sf::Vector2f(WINDOW_WIDTH, WINDOW_HEIGHT));
-    // Ścieżki
     if (bgTexture.loadFromFile("/Users/oskarzuk/Desktop/C++/gojosukuna/grafika/tlo.jpg"))
     {
         background.setTexture(&bgTexture);
@@ -345,7 +331,6 @@ int main()
                         gojo.energy -= 80.0f;
                         domainActive = true;
                         domainClock.restart();
-                        std::cout << "RYOIKI TENKAI!" << std::endl;
                     }
                     if (keyEvent->code == sf::Keyboard::Key::LShift)
                         gojo.dash();
@@ -357,7 +342,6 @@ int main()
             domainActive = false;
         float sukunaTimeScale = domainActive ? 0.2f : 1.0f;
 
-        // --- GOJO ---
         if (gojo.hp > 0)
         {
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
@@ -365,7 +349,6 @@ int main()
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
                 gojo.accelerate(1.0f);
 
-            // Atak Podstawowy (Spacja)
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
             {
                 if (!spacePressedLastFrame && gojo.attackClock.getElapsedTime().asSeconds() > 0.2f)
@@ -385,7 +368,6 @@ int main()
                 spacePressedLastFrame = false;
             }
 
-            // Atak Specjalny (E)
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::E))
             {
                 if (!ePressedLastFrame && gojo.attackClock.getElapsedTime().asSeconds() > 0.5f)
@@ -406,21 +388,15 @@ int main()
             }
         }
 
-        // --- AI SUKUNA (POPRAWIONE) ---
         if (sukuna.hp > 0)
         {
             float dx = gojo.hitbox.getPosition().x - sukuna.hitbox.getPosition().x;
             float distance = std::abs(dx);
 
-            // NOWA LOGIKA DYSTANSU:
-            // Goni tylko jak jesteś bardzo daleko (> 550 pikseli)
             if (distance > 550)
                 sukuna.accelerate((dx > 0 ? 1.0f : -1.0f));
-            // Ucieka, jeśli podejdziesz bliżej niż 350 pikseli (Wcześniej było 150)
             else if (distance < 350)
                 sukuna.accelerate((dx > 0 ? -1.0f : 1.0f));
-
-            // Pomiędzy 350 a 550 pikseli Sukuna stoi w miejscu i czeka na atak
 
             if (dx > 0)
                 sukuna.facingRight = true;
@@ -434,7 +410,6 @@ int main()
             {
                 float dir = (dx > 0) ? 1.0f : -1.0f;
 
-                // Czasem używa Fugi
                 if (sukuna.energy > COST_SPECIAL && (rand() % 100 < 25))
                 {
                     sukuna.energy -= COST_SPECIAL;
@@ -452,7 +427,6 @@ int main()
         gojo.update(1.0f);
         sukuna.update(sukunaTimeScale);
 
-        // LOGIKA POCISKÓW
         for (size_t i = 0; i < projectiles.size(); i++)
         {
             float projSpeed = (projectiles[i].owner == "Sukuna") ? sukunaTimeScale : 1.0f;
@@ -527,8 +501,6 @@ int main()
         for (auto &p : particles)
             window.draw(p.shape);
 
-        // UI
-        // Gojo
         sf::RectangleShape hpGojoBg({104, 14});
         hpGojoBg.setPosition({50, 50});
         hpGojoBg.setFillColor(sf::Color::Black);
@@ -546,7 +518,6 @@ int main()
         enGojo.setFillColor(sf::Color::Cyan);
         window.draw(enGojo);
 
-        // Sukuna
         sf::RectangleShape hpSukunaBg({604, 14});
         hpSukunaBg.setPosition({WINDOW_WIDTH / 2 - 302, 50});
         hpSukunaBg.setFillColor(sf::Color::Black);
@@ -568,12 +539,10 @@ int main()
 
         if (gojo.hp <= 0)
         {
-            std::cout << "PRZEGRALES!" << std::endl;
             window.close();
         }
         else if (sukuna.hp <= 0)
         {
-            std::cout << "WYGRALES!" << std::endl;
             window.close();
         }
     }
