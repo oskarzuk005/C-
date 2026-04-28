@@ -1,30 +1,35 @@
 #pragma once
 #include <vector>
 #include <string>
-#include "organizm.h"
+
+class organizm;
 
 class swiat
 {
 private:
-    int szerokosc, wysokosc;
-    std::vector<organizm *> organizmy;
-    std::vector<std::string> komunikaty;
-    int tura;
-    bool koniecGry;
+    int szerokoscPlanszy, wysokoscPlanszy;
+    std::vector<organizm *> listaOrganizmow;
+    std::vector<std::string> listaKomunikatow;
+    int numerTury;
+    bool czyKoniecGry;
 
 public:
-    swiat(int szer, int wys);
+    swiat(int szerokosc, int wysokosc);
     ~swiat();
 
-    int getSzerokosc() const { return szerokosc; }
-    int getWysokosc() const { return wysokosc; }
-    bool czyKoniec() const { return koniecGry; }
-    void setKoniecGry() { koniecGry = true; }
+    int pobierzSzerokosc() const;
+    int pobierzWysokosc() const;
+    bool sprawdzKoniecGry() const;
+    void ustawKoniecGry();
 
-    void dodajKomunikat(std::string kom);
-    void dodajOrganizm(organizm *org);
-    organizm *getOrganizmNaPolu(int x, int y);
-    void usunMartwe();
+    void dodajKomunikat(std::string wiadomosc);
+    void dodajOrganizm(organizm *nowyOrganizm);
+    organizm *pobierzOrganizmNaPolu(int x, int y);
+    bool znajdzWolnePole(int x, int y, int &znalezioneX, int &znalezioneY);
+    void usunMartweOrganizmy();
     void wykonajTure();
     void rysujSwiat();
+
+    void zapiszStanGry(const std::string &nazwaPliku);
+    void wczytajStanGry(const std::string &nazwaPliku);
 };

@@ -9,35 +9,34 @@ protected:
     int sila;
     int inicjatywa;
     int wiek;
-    int x, y;
-    swiat *swiat_ptr;
-    char znak;
-    bool martwy;
+    int polozenieX, polozenieY;
+    swiat *wskaznikNaSwiat;
+    char znakReprezentacji;
+    bool czyJestMartwy;
 
 public:
-    organizm(int sila, int inicjatywa, int x, int y, swiat *swiat_ptr, char znak)
-        : sila(sila), inicjatywa(inicjatywa), wiek(0), x(x), y(y), swiat_ptr(swiat_ptr), znak(znak), martwy(false) {}
-
+    organizm(int poczatkowaSila, int poczatkowaInicjatywa, int x, int y, swiat *swiatGry, char znak);
     virtual ~organizm() = default;
 
     virtual void akcja() = 0;
-    virtual void kolizja(organizm *other) = 0;
-    virtual std::string getNazwa() const = 0;
+    virtual void kolizja(organizm *innyOrganizm) = 0;
+    virtual std::string pobierzNazwe() const = 0;
+    virtual organizm *klonuj(int noweX, int noweY) = 0;
 
-    int getX() const { return x; }
-    int getY() const { return y; }
-    int getSila() const { return sila; }
-    int getInicjatywa() const { return inicjatywa; }
-    int getWiek() const { return wiek; }
-    char getZnak() const { return znak; }
-    bool czyMartwy() const { return martwy; }
+    virtual bool czyOdbilAtak(organizm *napastnik);
+    virtual bool czyUcieka();
 
-    void setSila(int s) { sila = s; }
-    virtual void zabij() { martwy = true; }
-    void postarz() { wiek++; }
-    void zmienPolozenie(int nx, int ny)
-    {
-        x = nx;
-        y = ny;
-    }
+    int pobierzX() const;
+    int pobierzY() const;
+    int pobierzSile() const;
+    int pobierzInicjatywe() const;
+    int pobierzWiek() const;
+    char pobierzZnak() const;
+    bool sprawdzCzyMartwy() const;
+
+    void ustawSile(int nowaSila);
+    void ustawWiek(int nowyWiek);
+    virtual void zabij();
+    void postarz();
+    void zmienPolozenie(int noweX, int noweY);
 };
